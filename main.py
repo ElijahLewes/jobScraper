@@ -1,5 +1,25 @@
+#AITC 352 Tips & Tricks Presentation
+#Eli Sauerwalt
+#4.29.2025
+
+#It's a simple webscraper for static websites. The example is built around a site used in a RealPython tutorial, but could be adapted to work for any static site. 
+
 import requests
 from bs4 import BeautifulSoup
+import csv
+from pathlib import Path
+from datetime import datetime
+
+# Get user's desktop directory for later 
+desktop = Path.home() / "Desktop"
+
+# Define the JobPosting class
+class JobPosting:
+    def __init__(self, title, company, location, link):
+        self.title = title
+        self.company = company
+        self.location = location
+        self.link = link
 
 #STEP 1----------
 #Site to scrape
@@ -24,7 +44,7 @@ jobListings = soup.find(id="ResultsContainer")
 #----STEP 3----------
 #prettify() just dispalays all content within the class id
 
-print(jobListings.prettify())
+#print(jobListings.prettify())
 
 #--------STEP 4--------
 #iscolate jobs
@@ -60,22 +80,43 @@ developerJobCards = [
     h2Element.parent.parent.parent for h2Element in developerJobs
 ]
 
-#iterate over each developerJob to get elements w/ relevant info
+#iterate over each developerJob to get elements w/ relevant info.
+#add each listing as a JobPosting object to list
+
+jobObjects = []
 for devJob in developerJobCards:
-    devJobTitle = devJob.find("h2", class_="title")
-    devJobCompany = devJob.find("h3", class_="company")
-    devJobLocation = devJob.find("p", class_="location")
+    devJobTitle = devJob.find("h2", class_="title").text.strip()
+    devJobCompany = devJob.find("h3", class_="company").text.strip()
+    devJobLocation = devJob.find("p", class_="location").text.strip()
     
-    linkURL = devJob.find_all("a")[1]["href"]
+    #get the urls associated with each job because this is kind of useless otherwise
+    #This site has 2 links for each job posting. We only need the second one so we have to do a little thing with an array
+    linkURL = devJob.find_all("a")[1]["href"].strip()
     
+    job = JobPosting(devJobTitle, devJobCompany, devJobLocation, linkURL)
+    jobObjects.append(job)
     
-    print("---")
-    print(devJobTitle.text.strip(), "\n")
-    print(devJobCompany.text.strip(), "\n")
-    print(devJobLocation.text.strip(), "\n")
+
+    print(devJobTitle, "\n")
+    print(devJobCompany, "\n")
+    print(devJobLocation, "\n")
     print(f"Apply here: {linkURL}\n")
-    print("---")
+    
     
 #---STEP 8----
-#get the urls associated with each job because this is kind of useless otherwise
-#This site has 2 links for each job posting. We only need the second one so we have to do a little thing with an array
+#Save jobs to csv file 
+#Save to desktop 
+#Title csv file dynamically with file creation time stamp
+timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+
+fileName = f"developer_jobs_{timestamp}.csv"
+output_file = desktop / fileName
+with open(output_file, mode="w", newline="", encoding="utf-8") as file:
+    writer = csv.writer(file)
+    # Headers
+    writer.writerow(["Title", "Company", "Location", "Apply Link"])  
+    #Adding rows for each job
+    for job in jobObjects:
+        writer.writerow([job.title, job.company, job.location, job.link])
+        
+        print(f"CSV saved to: {output_file}")
