@@ -3,6 +3,8 @@
 #4.29.2025
 
 #It's a simple webscraper for static websites. The example is built around a site used in a RealPython tutorial, but could be adapted to work for any static site. 
+#If you want to work with a dynamic site use this library: https://pypi.org/project/requests-html/
+
 
 import requests
 from bs4 import BeautifulSoup
@@ -47,7 +49,7 @@ jobListings = soup.find(id="ResultsContainer")
 #print(jobListings.prettify())
 
 #--------STEP 4--------
-#iscolate jobs
+#isolate jobs
 #find_all should return an array of relevant elements
 jobCards = jobListings.find_all("div", class_="card-content")
 
@@ -110,8 +112,8 @@ for devJob in developerJobCards:
 timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
 
 fileName = f"developer_jobs_{timestamp}.csv"
-output_file = desktop / fileName
-with open(output_file, mode="w", newline="", encoding="utf-8") as file:
+output_file_path = desktop / fileName
+with open(output_file_path, mode="w", newline="", encoding="utf-8") as file:
     writer = csv.writer(file)
     # Headers
     writer.writerow(["Title", "Company", "Location", "Apply Link"])  
@@ -119,4 +121,4 @@ with open(output_file, mode="w", newline="", encoding="utf-8") as file:
     for job in jobObjects:
         writer.writerow([job.title, job.company, job.location, job.link])
         
-        print(f"CSV saved to: {output_file}")
+print(f"CSV saved to: {output_file_path}")
