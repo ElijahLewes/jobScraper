@@ -1,4 +1,4 @@
-FROM python:3
+FROM python:3.12
 
 # Install system dependencies for PyQt5
 RUN apt-get update && apt-get install -y \
@@ -9,8 +9,14 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /jobScraper/
+# Upgrade tools
+RUN pip install --upgrade pip setuptools wheel
+# Install PyQt6 and sip first to ensure wheel is used
+RUN pip install --no-cache-dir PyQt6-sip==13.6.0
+
+# Now install the rest
 COPY requirementList.txt .
-RUN pip install r requirementList.txt 
+RUN pip install --no-cache-dir -r requirementList.txt
 
 COPY . /jobScraper
 

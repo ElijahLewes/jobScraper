@@ -6,6 +6,7 @@ requests==2.32.3
 soupsieve==2.7
 typing_extensions==4.13.2
 urllib3==2.4.0
-PyQT5==5.15.9
+
+
 
 
